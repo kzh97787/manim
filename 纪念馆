@@ -1,0 +1,60 @@
+from manim import *
+
+class MaybachRainNight(Scene):
+    def construct(self):
+        # 设置背景（雨夜）
+        self.camera.background_color = "#111111"
+        
+        # 添加雨滴效果
+        rain = VGroup(*[Line(UP*0.5, DOWN*0.5, color=BLUE) for _ in range(100)])
+        rain.arrange_in_grid(rows=20, cols=5, buff=0.5)
+        rain.add_updater(lambda m, dt: m.shift(DOWN*dt*2))
+        
+        # 创建迈巴赫汽车简化模型
+        car_body = Rectangle(height=1, width=2.5, color=GREY, fill_opacity=1)
+        front_window = Polygon(
+            [-1, 0.5, 0], [-0.5, 1, 0], [0.5, 1, 0], [1, 0.5, 0],
+            color=BLUE_E, fill_opacity=0.8
+        )
+        wheels = VGroup(
+            Circle(radius=0.3, color=BLACK, fill_opacity=1).shift(LEFT*0.8 + DOWN*0.5),
+            Circle(radius=0.3, color=BLACK, fill_opacity=1).shift(RIGHT*0.8 + DOWN*0.5)
+        )
+        maybach = VGroup(car_body, front_window, wheels).scale(0.8)
+        
+        # 添加车灯效果
+        headlight = VGroup(
+            Line(ORIGIN, UP*0.5, color=YELLOW, stroke_width=10),
+            Line(ORIGIN, UP*0.3 + RIGHT*0.3, color=YELLOW, stroke_width=10),
+            Line(ORIGIN, UP*0.3 + LEFT*0.3, color=YELLOW, stroke_width=10)
+        ).shift(RIGHT*1.5 + DOWN*0.2)
+        maybach.add(headlight)
+
+        # 设置初始位置
+        maybach.move_to(LEFT*4 + DOWN*0.5)
+        
+        # 添加路面
+        road = Line(LEFT*10, RIGHT*10, color=GREY).shift(DOWN*2)
+        road_reflection = VGroup(*[
+            Line(ORIGIN, RIGHT*0.3, color=WHITE, stroke_width=2)
+            for _ in range(20)
+        ]).arrange(RIGHT, buff=0.5).shift(DOWN*2 + LEFT*5)
+        
+        # 添加所有元素到场景
+        self.add(rain, road, road_reflection, maybach)
+        
+        # 添加移动动画（10秒）
+        self.play(
+            maybach.animate.shift(RIGHT*10),
+            road_reflection.animate.shift(RIGHT*10),
+            run_time=10,
+            rate_func=linear
+        )
+        
+        # 添加音效提示（需要准备音频文件）
+        self.add_sound("rain_thunder.wav")  # 需要自行准备音效文件
+
+# 使用方法：
+# 1. 安装Manim: pip install manim
+# 2. 准备音效文件（可选）
+# 3. 运行命令: manim -pql maybach_scene.py MaybachRainNight
